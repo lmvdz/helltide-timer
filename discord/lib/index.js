@@ -83,7 +83,7 @@ function getMessageToEdit(discordClient) {
         message = await getMessageToEdit(discord_1.default);
     }
     let textChannel = discord_1.default.channels.cache.get(process.env.DISCORD_CHANNEL);
-    setInterval(async () => {
+    setInterval(() => {
         var now = new Date();
         var since = now - recordedHelltideStart;
         var timeleft = 0;
@@ -111,14 +111,16 @@ function getMessageToEdit(discordClient) {
         embed.addFields(...fields);
         const messageToSend = { embeds: [embed] };
         if (message === undefined) {
-            message = await textChannel.send(messageToSend);
-            (0, updateEnv_1.default)("DISCORD_CHANNEL_MESSAGE", message.id);
-            // console.log('message send and updated env ' + new Date().toUTCString())
+            textChannel.send(messageToSend).then((message) => {
+                (0, updateEnv_1.default)("DISCORD_CHANNEL_MESSAGE", message.id);
+                console.log('message send and updated env ' + new Date().toUTCString());
+            });
         }
         else {
-            await message.edit(messageToSend);
-            // console.log('message updated ' + new Date().toUTCString())
+            message.edit(messageToSend).then(() => {
+                console.log('message updated ' + new Date().toUTCString());
+            });
         }
-    }, 1000);
+    }, 10000);
 })();
 //# sourceMappingURL=index.js.map

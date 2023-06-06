@@ -63,7 +63,7 @@ function getMessageToEdit(discordClient): Promise<Message<boolean>> {
     }
     let textChannel = discordClient.channels.cache.get(process.env.DISCORD_CHANNEL) as TextChannel
 
-    setInterval(async () => {
+    setInterval(() => {
         var now = new Date()
         var since = (now as any) - recordedHelltideStart;
         var timeleft = 0;
@@ -77,6 +77,7 @@ function getMessageToEdit(discordClient): Promise<Message<boolean>> {
                 onCooldown = true;
             }
         }
+
         timeleft = Math.abs(since)
         let timeleftInHrs = hrTohhmmss(timeleft / 1000 / 60 / 60)
         
@@ -93,12 +94,14 @@ function getMessageToEdit(discordClient): Promise<Message<boolean>> {
         embed.addFields(...fields)
         const messageToSend = { embeds: [embed] }
         if (message === undefined) {
-            message = await textChannel.send(messageToSend)
-            updateEnv("DISCORD_CHANNEL_MESSAGE", message.id)
-            // console.log('message send and updated env ' + new Date().toUTCString())
+            textChannel.send(messageToSend).then((message) => {
+                updateEnv("DISCORD_CHANNEL_MESSAGE", message.id)
+                console.log('message send and updated env ' + new Date().toUTCString())
+            })
         } else {
-            await message.edit(messageToSend)
-            // console.log('message updated ' + new Date().toUTCString())
+            message.edit(messageToSend).then(() => {
+                console.log('message updated ' + new Date().toUTCString())
+            })
         }
-    }, 1000)
+    }, 10000)
 })()
