@@ -41,10 +41,8 @@ setInterval(() => {
     }
     timeleft = Math.abs(since)
     // const end = new Date(now.getTime() +  timeleft);
-    document.getElementById('timer').innerHTML = `
-        <p id="status">Helltide is ${onCooldown ? '<strong>over</strong>' : '<strong>active</strong>'}</p>
-        <p id="counter"><span id="counterTime">${hrTohhmmss(timeleft / 1000 / 60 / 60)}</span></p>
-    `
+    document.getElementById('timer').innerHTML = `${hrTohhmmss(timeleft / 1000 / 60 / 60)}`
+    document.getElementById('status').innerHTML = `${onCooldown ? '<strong>over</strong>' : '<strong>active</strong>'}`
 }, 1000)
 
 const checkbox = document.getElementById("checkbox")
