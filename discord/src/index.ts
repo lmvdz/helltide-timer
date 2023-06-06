@@ -1,4 +1,4 @@
-import { APIEmbedField, EmbedBuilder, TextChannel } from "discord.js";
+import { APIEmbedField, Channel, EmbedBuilder, Message, TextChannel } from "discord.js";
 import discordClient, { discordLogin } from "./discord";
 import express from 'express'
 
@@ -33,17 +33,34 @@ const recordedHelltideStart = 1686056400000;
 const helltideTime = 60 * 60 * 1000; // 1hr
 const helltideCooldown = 75 * 60 * 1000; // 1hr 15min
 
-
-const buildDiscordMessageEmbed = () => {
-
+function getMessageToEdit(): Promise<Message<boolean>> {
+    return new Promise((resolve, reject) => {
+        this.discordClient.channels.fetch(process.env.DISCORD_CHANNEL).then((channel: Channel | null) => {
+            if (channel === null) {
+                console.error('no channel found with id: ' + process.env.DISCORD_CHANNEL);
+                reject('no channel found with id: ' + process.env.DISCORD_CHANNEL);
+                return;  
+            }
+            (channel as TextChannel).messages.fetch().then((messages) => {
+                resolve(messages.get(process.env.DISCORD_CHANNEL_MESSAGE))
+            }).catch(error => {
+                console.error(error);
+                reject(error);
+            })
+        })
+    })
 }
 
 (async () => {
     await discordLogin(discordClient)
     await discordClient.channels.fetch(process.env.DISCORD_CHANNEL)
+    let message;
+    if (process.env.DISCORD_CHANNEL_MESSAGE) {
+        message = await getMessageToEdit()
+    }
     let textChannel = discordClient.channels.cache.get(process.env.DISCORD_CHANNEL) as TextChannel
 
-    setInterval(() => {
+    setInterval(async () => {
         var now = new Date()
         var since = (now as any) - recordedHelltideStart;
         var timeleft = 0;
@@ -82,7 +99,11 @@ const buildDiscordMessageEmbed = () => {
         //     <p id="status">Helltide is ${onCooldown ? '<strong>over</strong>' : '<strong>active</strong>'}</p>
         //     <p id="counter"><span id="counterTime">${}</span></p>
         // `
-        textChannel.send({ embeds: [embed] })
+        const messageToSend = { embeds: [embed] }
+        if (message === undefined) {
+            message = await textChannel.send(messageToSend)
+            
+        } else 
+           await message.edit(messageToSend)
     }, 1000)
-    
 })()
