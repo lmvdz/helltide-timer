@@ -15,4 +15,5 @@ body {
   transition: background 0.2s linear;
 }
 
-body.dark {background-color: #292c35; color: #fff;} /* #9b59b6 */
+body.dark { background-color: #292c35; color: #fff; } /* #9b59b6 */
+body.dark a, a:hover, a:active, a:visited { color: white; }
