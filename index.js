@@ -43,5 +43,5 @@ setInterval(() => {
     // const end = new Date(now.getTime() +  timeleft);
     document.getElementById('timer').innerHTML = `${hrTohhmmss(timeleft / 1000 / 60 / 60)}`
     document.getElementById('status').innerHTML = `${onCooldown ? '<strong>over</strong>' : '<strong>active</strong>'}`
-    document.title = `Helltide is ${onCooldown ? 'over' : 'active'} ${hrTohhmmss(timeleft / 1000 / 60 / 60)}`
+    document.title = `Helltide${onCooldown ? ' starts in ' : ' ends in '} ${hrTohhmmss(timeleft / 1000 / 60 / 60)}`
 }, 1000)
