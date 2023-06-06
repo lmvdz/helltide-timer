@@ -44,8 +44,3 @@ setInterval(() => {
     document.getElementById('timer').innerHTML = `${hrTohhmmss(timeleft / 1000 / 60 / 60)}`
     document.getElementById('status').innerHTML = `${onCooldown ? '<strong>over</strong>' : '<strong>active</strong>'}`
 }, 1000)
-
-const checkbox = document.getElementById("checkbox")
-checkbox.addEventListener("change", () => {
-  document.body.classList.toggle("dark")
-})
