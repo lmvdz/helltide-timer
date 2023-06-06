@@ -42,7 +42,6 @@ setInterval(() => {
     timeleft = Math.abs(since)
     // const end = new Date(now.getTime() +  timeleft);
     document.getElementById('timer').innerHTML = `
-        <h1 id="header">Helltide Timer</h1>
         <p id="status">Helltide is ${onCooldown ? '<strong>over</strong>' : '<strong>active</strong>'}</p>
         <p id="counter"><span id="counterTime">${hrTohhmmss(timeleft / 1000 / 60 / 60)}</span></p>
     `
