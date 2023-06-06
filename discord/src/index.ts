@@ -1,7 +1,9 @@
+import { config } from 'dotenv'
 import { APIEmbedField, Channel, EmbedBuilder, Message, TextChannel } from "discord.js";
 import discordClient, { discordLogin } from "./discord";
 import express from 'express'
-
+import updateEnv from './updateEnv'
+config()
 const app = express();
 app.get('/thumbnail', (req, res) => res.sendFile('../DiabloIV.png'))
 app.listen(5124, () => {console.log("helltide timer server started on 5124")})
@@ -33,9 +35,9 @@ const recordedHelltideStart = 1686056400000;
 const helltideTime = 60 * 60 * 1000; // 1hr
 const helltideCooldown = 75 * 60 * 1000; // 1hr 15min
 
-function getMessageToEdit(): Promise<Message<boolean>> {
+function getMessageToEdit(discordClient): Promise<Message<boolean>> {
     return new Promise((resolve, reject) => {
-        this.discordClient.channels.fetch(process.env.DISCORD_CHANNEL).then((channel: Channel | null) => {
+        discordClient.channels.fetch(process.env.DISCORD_CHANNEL).then((channel: Channel | null) => {
             if (channel === null) {
                 console.error('no channel found with id: ' + process.env.DISCORD_CHANNEL);
                 reject('no channel found with id: ' + process.env.DISCORD_CHANNEL);
@@ -52,11 +54,12 @@ function getMessageToEdit(): Promise<Message<boolean>> {
 }
 
 (async () => {
+    config()
     await discordLogin(discordClient)
     await discordClient.channels.fetch(process.env.DISCORD_CHANNEL)
     let message;
     if (process.env.DISCORD_CHANNEL_MESSAGE) {
-        message = await getMessageToEdit()
+        message = await getMessageToEdit(discordClient)
     }
     let textChannel = discordClient.channels.cache.get(process.env.DISCORD_CHANNEL) as TextChannel
 
@@ -79,31 +82,23 @@ function getMessageToEdit(): Promise<Message<boolean>> {
         
         let embed = new EmbedBuilder()
             .setColor(0x0099FF)
-            .setTitle('Helltide Timer')
+            .setTitle('Helltide Timer Website')
             .setURL('https://helltidetimer.com/')
             .setAuthor({
-                name: onCooldown ? 'Over' : 'Active',
-                // iconURL: 'https://i.imgur.com/AfFp7pu.png', 
-                // url: 'https://discord.js.org'
+                name: onCooldown ? 'Helltide is Over' : 'Helltide is Active',
             })
-            .setDescription(new Date().toUTCString())
-            .setThumbnail('https://helltidetimer.com/thumbnail')
-            .setTimestamp()
-            // .setFooter({ text: twitchUserInfo.display_name, iconURL: twitchUserInfo.profile_image_url })
+            .setThumbnail('https://helltidetimer.com/DiabloIV.png')
             .setFooter({ text: 'HelltideTimerBot' })
-        let fields = [{ name: timeleftInHrs, value: '\u200B' }] as Array<APIEmbedField>;
-        embed.addFields({ name: '\u200B', value: '\u200B' }, ...fields)
-        // const end = new Date(now.getTime() +  timeleft);
-        // document.getElementById('timer').innerHTML = `
-        //     <h1 id="header">Helltide Timer</h1>
-        //     <p id="status">Helltide is ${onCooldown ? '<strong>over</strong>' : '<strong>active</strong>'}</p>
-        //     <p id="counter"><span id="counterTime">${}</span></p>
-        // `
+        let fields = [{ name: (onCooldown ? 'Active in ' : 'Over in ') + timeleftInHrs, value: '\u200B' }] as Array<APIEmbedField>;
+        embed.addFields(...fields)
         const messageToSend = { embeds: [embed] }
         if (message === undefined) {
             message = await textChannel.send(messageToSend)
-            
-        } else 
-           await message.edit(messageToSend)
+            updateEnv("DISCORD_CHANNEL_MESSAGE", message.id)
+            // console.log('message send and updated env ' + new Date().toUTCString())
+        } else {
+            await message.edit(messageToSend)
+            // console.log('message updated ' + new Date().toUTCString())
+        }
     }, 1000)
 })()

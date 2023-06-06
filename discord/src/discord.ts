@@ -1,12 +1,12 @@
 import { config } from 'dotenv';
-import { Channel, Client, GatewayIntentBits, Message, TextChannel, EmbedBuilder, APIEmbedField } from 'discord.js';
+import { Client, GatewayIntentBits} from 'discord.js';
 
 config()
 
 const discordClient = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 discordClient.on('ready', () => {
-    console.log("discord bot loaded");
+    console.log(`Logged in as ${discordClient.user.tag}`);
 })
 
 export async function discordLogin(discordClient: Client) {
